@@ -54,7 +54,7 @@ def create_app(test_config=None):
       'type': select.type}
       categories.append(category)
 
-    return jsonify(categories)
+    return jsonify({'categories': categories, 'success': True})
 
   '''
   @TODO: 
