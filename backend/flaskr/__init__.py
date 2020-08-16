@@ -11,13 +11,11 @@ QUESTIONS_PER_PAGE = 10
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
-  setup_db(app)
-  CORS(app)
-  
+  setup_db(app)  
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
-
+  CORS(app)
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
@@ -28,12 +26,25 @@ def create_app(test_config=None):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
+  @app.route('/')
+  def home():
+    return '=)'
   '''
   @TODO: 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
 
+  @app.route('/categories')
+  def get_categories():
+    selections = Category.query.order_by(Category.id).all()
+    categories = []
+    for selection in selections:
+      category = {'id': selection.id,
+      'type': selection.type}
+      categories.append(category)
+
+    return jsonify(categories)
 
   '''
   @TODO: 
