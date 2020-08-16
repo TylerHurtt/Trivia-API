@@ -50,6 +50,50 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'resource not found')
 
+    def test_delete_book(self):
+        res = self.client().delete('/questions/1')
+        data = json.loads(res.data)
+
+        questions_before = len(question.query.all())
+
+        question = question.query.filter(question.id == 1).one_or_none()
+
+        question_id = question.id
+
+        question.delete()
+
+        questions_after = len(question.query.all())
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['deleted'], '1')
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(
+            question_id
+        )
+        self.assertTrue(
+            questions_before > questions_after
+        )
+        self.assertEqual(
+            question, None
+        )
+
+    def test_404_for_failed_delete(self):
+        res = self.client().delete('/categories/one_hundred')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'resource not found')
+
+    def test_422_if_categoflary_does_not_exist(self):
+        res = self.client().delete('/categories/1000000')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+
 
 
 # Make the tests conveniently executable
