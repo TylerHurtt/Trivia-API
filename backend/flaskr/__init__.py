@@ -48,6 +48,10 @@ def create_app(test_config=None):
   @app.route('/categories')
   def get_categories():
     selection = Category.query.order_by(Category.id).all()
+
+    if len(selection) == 0:
+      abort(404)
+
     categories = []
     for select in selection:
       category = {'id': select.id,
@@ -80,7 +84,7 @@ def create_app(test_config=None):
         categories.append(category)
     return jsonify({
       'questions': current_questions,
-      'num_questions': len(selection),
+      'total_questions': len(selection),
       'current_category': current_questions[0],
       'categories': categories,
       'success': True
@@ -102,9 +106,12 @@ def create_app(test_config=None):
         abort(404)
       
       question.delete()
+
+      total_questions = len(Questions.query.all())
       
       return jsonify({
-        'id': question_id,
+        'deleted': question_id,
+        'total_questions': total_questions,
         'successs': True
       })
     except:
