@@ -8,6 +8,16 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+def paginate(request, selection):
+  page = request.args.get('page', 1, type=int)
+  start = (page - 1) * QUESTIONS_PER_PAGE
+  end = start + QUESTIONS_PER_PAGE
+
+  questions = [question.format() for question in selection]
+  current_questions = questions[start:end]
+
+  return current_questions
+
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
@@ -37,11 +47,11 @@ def create_app(test_config=None):
 
   @app.route('/categories')
   def get_categories():
-    selections = Category.query.order_by(Category.id).all()
+    selection = Category.query.order_by(Category.id).all()
     categories = []
-    for selection in selections:
-      category = {'id': selection.id,
-      'type': selection.type}
+    for select in selection:
+      category = {'id': select.id,
+      'type': select.type}
       categories.append(category)
 
     return jsonify(categories)
@@ -56,8 +66,24 @@ def create_app(test_config=None):
   TEST: At this point, when you start the application
   you should see questions and categories generated,
   ten questions per page and pagination at the bottom of the screen for three pages.
-  Clicking on the page numbers should update the questions. 
+  Clicking on the page numbers should update the questions.
   '''
+  @app.route('/questions')
+  def get_questions():
+    selection = Question.query.all()
+    current_questions = paginate(request, selection)
+    categories = []
+    for question in current_questions:
+      category = Category.query.filter(Category.id == question['category']).one_or_none().type
+      current_category = category
+      if category not in categories:
+        categories.append(category)
+    return jsonify({
+      'questions': current_questions,
+      'num_questions': len(selection),
+      'current_category': current_questions[0],
+      'categories': categories
+    })
 
   '''
   @TODO: 
