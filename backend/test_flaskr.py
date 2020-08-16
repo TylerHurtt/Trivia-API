@@ -121,6 +121,26 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'unprocessable')
 
+    def test_get_book_search_with_results(self):
+        res = self.client().post(
+            '/question',  json={'search': 'peanut'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+        self.assertEqual(len(data['question']), 1)
+
+    def test_get_book_search_without_results(self):
+        res = self.client().post(
+            '/question',  json={'search': 'jackfruit'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['total_questions'])
+        self.assertEqual(len(data['question']), 0)
+
 
 
 # Make the tests conveniently executable
