@@ -141,6 +141,41 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
         self.assertEqual(len(data['question']), 0)
 
+     def test_get_question_within_categories(self):
+        res = self.client().get('/questions/science')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['questions'])
+        self.assertTrue(isinstance(data['questions'], list))
+
+    def test_404_sent_requesting_beyond_valid_page(self):
+        res = self.client().get('/categories?page=10000')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'resource not found')
+
+    # def test_update_book_rating(self):
+    #     res = self.client().patch('/books/5', json={'rating': 1})
+    #     data = json.loads(res.data)
+
+    #     book = Book.query.filter(Book.id == 5).one_or_none()
+
+    #     self.assertEqual(res.status_code, 200)
+    #     self.assertEqual(data['success'], True)
+    #     self.assertTrue(book.format()['rating'], 1)
+
+    # def test_400_for_failed_update(self):
+    #     res = self.client().patch('/books/5')
+    #     data = json.loads(res.data)
+
+    #     self.assertEqual(res.status_code, 400)
+    #     self.assertEqual(data['success'], False)
+    #     self.assertEqual(data['message'], 'bad request')
+
 
 
 # Make the tests conveniently executable
