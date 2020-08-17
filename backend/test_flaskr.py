@@ -151,12 +151,28 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(isinstance(data['questions'], list))
 
     def test_404_sent_requesting_beyond_valid_page(self):
-        res = self.client().get('/categories?page=10000')
+        res = self.client().get('/questions/engineering')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'resource not found')
+
+     def test_play_quiz(self):
+        res = self.client().post('/play')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['questions'])
+        self.assertTrue(len(data['questions']) > 0)
+
+    def test_400_for_failed_play(self):
+        res = self.client().post('/play')
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'bad request')
 
     # def test_update_book_rating(self):
     #     res = self.client().patch('/books/5', json={'rating': 1})
